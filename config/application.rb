@@ -6,7 +6,7 @@ require "rails/all"
 # you've limited to :test, :development, or :production.
 Bundler.require(*Rails.groups)
 
-module UntitledApplication
+module GreatApp
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
     config.load_defaults 7.0
@@ -26,6 +26,6 @@ module UntitledApplication
 
     # This actually doesn't appear to work.
     # TODO We should make the at-mentions stuff configurable.
-    config.action_view.sanitized_allowed_protocols = ["http", "untitled_application"]
+    config.action_view.sanitized_allowed_protocols = ["http", "greatapp"]
   end
 end

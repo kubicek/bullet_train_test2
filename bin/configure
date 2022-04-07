@@ -49,82 +49,6 @@ def ask(string)
   return gets.strip
 end
 
-def not_installed?(package)
-  `brew info #{package} | grep "Not installed"`.strip.length > 0
-end
-
-# Unless the shell's current version of Ruby is the same as what the application requires, we should flag it.
-required_ruby = `cat ./.ruby-version`.strip
-actual_ruby = `ruby -v`.strip
-message = "Bullet Train requires Ruby #{required_ruby} and `ruby -v` returns #{actual_ruby}."
-if actual_ruby.include?(required_ruby)
-  puts green(message)
-else
-  puts red(message)
-  input = ask "Try proceeding with with Ruby #{actual_ruby} anyway? [y]"
-  if input.downcase[0] == "n"
-    exit
-  end
-end
-
-required_node = `cat ./.nvmrc`.strip
-actual_node = `node -v`.strip.gsub("v", "")
-message = "Bullet Train requires Node.js #{required_node} and `node -v` returns #{actual_node}."
-if Gem::Version.new(actual_node) >= Gem::Version.new(required_node)
-  puts green(message)
-else
-  puts red(message)
-  input = ask "Try proceeding with Node #{actual_node} anyway? [y]"
-  if input.downcase[0] == "n"
-    exit
-  end
-end
-
-if `brew info 2> /dev/null`.length > 0
-  puts green "Homebrew is installed."
-else
-  puts red "You don't have Homebrew installed. This isn't necessarily a problem, you might not even be on macOS, but we can't check your dependencies without it."
-  input = ask "Try proceeding without Homebrew?"
-  if input.downcase[0] == "n"
-    exit
-  end
-end
-
-if not_installed?("postgresql@13")
-  puts red "PostgreSQL 13 is not installed via Homebrew. Try running `brew install postgresql@13`."
-  input = ask "Try proceeding without PostgreSQL 13?"
-  if input.downcase[0] == "n"
-    exit
-  end
-else
-  puts green "PostgreSQL 13 is installed via Homebrew."
-end
-
-if not_installed?("redis")
-  puts red "Redis is not installed via Homebrew. Try running `brew install redis`."
-  input = ask "Try proceeding without Redis?"
-  if input.downcase[0] == "n"
-    exit
-  end
-else
-  puts green "Redis is installed via Homebrew."
-end
-
-if not_installed?("icu4c")
-  puts red "icu4c is not installed via Homebrew. Try running `brew install icu4c`."
-  input = ask "Try proceeding without icu4c?"
-  if input.downcase[0] == "n"
-    exit
-  end
-end
-
-if `yarn -v 2> /dev/null`.length > 0
-  puts green "Yarn is installed."
-else
-  puts red "You don't have Yarn installed. We can't proceed without it. Try `brew install yarn` or see the installation instructions at https://yarnpkg.com/getting-started/install ."
-  exit
-end
-
 if `git remote | grep bullet-train`.strip.length > 0
   puts yellow "Repository already has a \`bullet-train`\ remote."
 else
@@ -156,19 +80,6 @@ local_branch = `git branch | grep "*"`.split.last
 
 puts green "Pushing repository to `origin`."
 stream "git push origin #{local_branch}:main 2>&1"
-
-puts green "Running `bundle install`."
-stream "bundle install"
-
-if `yarn -v 2> /dev/null`.strip.length > 0
-  puts green "Yarn is installed."
-else
-  puts red "Yarn is not installed. Try `brew install yarn`."
-  exit
-end
-
-puts green "Running `yarn install`."
-stream "yarn install"
 
 # This should be available now.
 require "active_support/inflector"
@@ -210,5 +121,5 @@ stream "git push origin #{local_branch}:main"
 puts ""
 puts yellow "OK, we're done, but at some point you should edit `config/locales/en/application.en.yml`!"
 puts ""
-puts green "Next you can run `bin/setup` and then `bin/dev`."
+puts green "Next you can run `docker compose run web bin/setup` and then `docker compose up`."
 puts ""
