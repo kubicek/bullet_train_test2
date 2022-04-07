@@ -1,4 +1,4 @@
-web: bin/rails server -p 3000
+web: bin/rails server -p 3000 -b 0.0.0.0
 worker: bundle exec sidekiq -t 25
 js: yarn build --watch
 light-js: yarn light:build --watch
